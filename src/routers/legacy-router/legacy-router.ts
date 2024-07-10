@@ -1,8 +1,8 @@
 import { BigNumber } from '@ethersproject/bignumber';
 import { Logger } from '@ethersproject/logger';
-import { SwapRouter, Trade } from 'routersdk18';
-import { Currency, Token, TradeType } from 'sdkcore18';
-import { FeeAmount, MethodParameters, Pool, Route } from 'v3sdk18';
+import { SwapRouter, Trade } from 'lampros-router';
+import { Currency, Token, TradeType } from 'lampros-core';
+import { FeeAmount, MethodParameters, Pool, Route } from 'lampros-v3';
 import _ from 'lodash';
 
 import { IOnChainQuoteProvider, RouteWithQuotes } from '../../providers';

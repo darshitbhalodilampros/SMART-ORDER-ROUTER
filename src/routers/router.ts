@@ -4,22 +4,22 @@ import {
   // MixedRouteSDK,
   Protocol,
   Trade,
-} from 'routersdk18';
+} from 'lampros-router';
 import {
   Currency,
   Fraction,
   Percent,
   Token,
   TradeType,
-} from 'sdkcore18';
-import { SwapOptions as UniversalRouterSwapOptions } from 'universalroutersdk18';
+} from 'lampros-core';
+import { SwapOptions as UniversalRouterSwapOptions } from 'lampros-universal';
 // import { Route as V1RouteRaw } from '@pollum-io/v1-sdk';
 import {
   Pool,
   Position,
   MethodParameters as SDKMethodParameters,
   Route as V3RouteRaw,
-} from 'v3sdk18';
+} from 'lampros-v3';
 
 import { SimulationStatus } from '../providers';
 import { CurrencyAmount } from '../util/amounts';

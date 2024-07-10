@@ -2,8 +2,8 @@ import { parseUnits } from '@ethersproject/units';
 import {
   Currency,
   CurrencyAmount as CurrencyAmountRaw,
-} from 'sdkcore18';
-import { FeeAmount } from 'v3sdk18';
+} from 'lampros-core';
+import { FeeAmount } from 'lampros-v3';
 import JSBI from 'jsbi';
 
 export class CurrencyAmount extends CurrencyAmountRaw<Currency> { }

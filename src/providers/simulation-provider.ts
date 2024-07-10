@@ -1,6 +1,6 @@
 import { JsonRpcProvider } from '@ethersproject/providers';
-import { TradeType } from 'sdkcore18';
-import { PERMIT2_ADDRESS } from 'universalroutersdk18';
+import { TradeType } from 'lampros-core';
+import { PERMIT2_ADDRESS } from 'lampros-universal';
 import { BigNumber } from 'ethers/lib/ethers';
 
 import { SwapOptions, SwapRoute, SwapType } from '../routers';

@@ -1,5 +1,5 @@
-import { ApprovalTypes } from 'routersdk18';
-import { Currency, CurrencyAmount } from 'sdkcore18';
+import { ApprovalTypes } from 'lampros-router';
+import { Currency, CurrencyAmount } from 'lampros-core';
 
 import { SwapRouter02__factory } from '../types/other/factories/SwapRouter02__factory';
 import { ChainId, log, SWAP_ROUTER_02_ADDRESSES } from '../util';

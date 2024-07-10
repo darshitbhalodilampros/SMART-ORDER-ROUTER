@@ -4,13 +4,13 @@
  * @export
  * @interface IRouteCachingProvider
  */
-import { Protocol } from 'routersdk18';
+import { Protocol } from 'lampros-router';
 import {
   Currency,
   CurrencyAmount,
   Token,
   TradeType,
-} from 'sdkcore18';
+} from 'lampros-core';
 
 import { ChainId } from '../../../util';
 

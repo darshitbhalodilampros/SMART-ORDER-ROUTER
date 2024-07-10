@@ -1,4 +1,4 @@
-import { Token } from 'sdkcore18';
+import { Token } from 'lampros-core';
 
 import { log } from '../../util';
 import { ProviderConfig } from '../provider';

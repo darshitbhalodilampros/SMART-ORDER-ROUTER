@@ -1,6 +1,6 @@
 {
-  "name": "smartorderrouter18",
-  "version": "0.0.5",
+  "name": "lampros-sor",
+  "version": "0.0.1",
   "description": "Pegasys Smart Order Router",
   "main": "build/main/index.js",
   "typings": "build/main/index.d.ts",
@@ -47,13 +47,13 @@
     "lodash": "^4.17.21",
     "mnemonist": "^0.38.3",
     "node-cache": "^5.1.2",
-    "routersdk18": "0.0.1",
-    "sdkcore18": "^0.0.1",
+    "lampros-router": "0.0.1",
+    "lampros-core": "^0.0.1",
     "stats-lite": "^2.2.0",
     "udonswap-default-token-list": "1.0.0",
     "udonswap-token-lists": "1.0.0",
-    "universalroutersdk18": "0.0.1",
-    "v3sdk18": "0.0.1"
+    "lampros-universal": "0.0.1",
+    "lampros-v3": "0.0.1"
   },
   "devDependencies": {
     "@ethersproject/providers": "^5.4.0",

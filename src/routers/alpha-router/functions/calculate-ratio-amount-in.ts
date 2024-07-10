@@ -1,4 +1,4 @@
-import { Fraction } from 'sdkcore18';
+import { Fraction } from 'lampros-core';
 
 import { CurrencyAmount } from '../../../util/amounts';
 

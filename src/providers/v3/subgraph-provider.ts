@@ -1,4 +1,4 @@
-import { Token } from 'sdkcore18';
+import { Token } from 'lampros-core';
 import retry from 'async-retry';
 import Timeout from 'await-timeout';
 import { gql, GraphQLClient } from 'graphql-request';

@@ -1,13 +1,13 @@
 import { BigNumber } from '@ethersproject/bignumber';
-import { Protocol } from 'routersdk18';
+import { Protocol } from 'lampros-router';
 import {
   Currency,
   CurrencyAmount,
   Token,
   TradeType,
-} from 'sdkcore18';
+} from 'lampros-core';
 // import { Pair } from '@pollum-io/v1-sdk/dist/entities';
-import { FeeAmount, Pool } from 'v3sdk18';
+import { FeeAmount, Pool } from 'lampros-v3';
 import _ from 'lodash';
 
 // import { IV2PoolProvider } from '../providers';

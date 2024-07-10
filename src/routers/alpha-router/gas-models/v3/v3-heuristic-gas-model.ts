@@ -1,6 +1,6 @@
 import { BigNumber } from '@ethersproject/bignumber';
-import { Percent, Price, TradeType } from 'sdkcore18';
-import { Pool } from 'v3sdk18';
+import { Percent, Price, TradeType } from 'lampros-core';
+import { Pool } from 'lampros-v3';
 import _ from 'lodash';
 
 import {

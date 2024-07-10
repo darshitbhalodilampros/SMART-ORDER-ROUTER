@@ -3,7 +3,7 @@ import { JsonRpcProvider } from '@ethersproject/providers';
 import {
   PERMIT2_ADDRESS,
   UNIVERSAL_ROUTER_ADDRESS,
-} from 'universalroutersdk18';
+} from 'lampros-universal';
 import axios from 'axios';
 import { BigNumber } from 'ethers/lib/ethers';
 

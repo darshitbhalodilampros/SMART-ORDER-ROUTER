@@ -1,6 +1,6 @@
-import { Protocol } from 'routersdk18';
-import { Token, TradeType } from 'sdkcore18';
-import { FeeAmount } from 'v3sdk18';
+import { Protocol } from 'lampros-router';
+import { Token, TradeType } from 'lampros-core';
+import { FeeAmount } from 'lampros-v3';
 import _ from 'lodash';
 
 import {

@@ -1,7 +1,7 @@
-import { Protocol } from 'routersdk18';
-import { Percent } from 'sdkcore18';
+import { Protocol } from 'lampros-router';
+import { Percent } from 'lampros-core';
 // import { Pair } from '@pollum-io/v1-sdk';
-import { Pool } from 'v3sdk18';
+import { Pool } from 'lampros-v3';
 import _ from 'lodash';
 
 import { RouteWithValidQuote } from '../routers/alpha-router';

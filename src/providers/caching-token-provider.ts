@@ -1,4 +1,4 @@
-import { Token } from 'sdkcore18';
+import { Token } from 'lampros-core';
 import _ from 'lodash';
 
 import { ChainId, log, WRAPPED_NATIVE_CURRENCY } from '../util';

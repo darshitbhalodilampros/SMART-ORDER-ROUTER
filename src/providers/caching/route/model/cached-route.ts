@@ -1,5 +1,5 @@
-import { Protocol } from 'routersdk18';
-import { Token } from 'sdkcore18';
+import { Protocol } from 'lampros-router';
+import { Token } from 'lampros-core';
 
 import { V3Route } from '../../../../routers';
 

@@ -1,7 +1,7 @@
 import { BigNumber } from '@ethersproject/bignumber';
-import { Protocol } from 'routersdk18';
-import { Token, TradeType } from 'sdkcore18';
-// import { Pool } from 'v3sdk18';
+import { Protocol } from 'lampros-router';
+import { Token, TradeType } from 'lampros-core';
+// import { Pool } from 'lampros-v3';
 import _ from 'lodash';
 
 // import { IV2PoolProvider } from '../../../providers/v2/pool-provider';

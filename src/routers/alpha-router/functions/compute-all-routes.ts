@@ -1,6 +1,6 @@
-import { Token } from 'sdkcore18';
+import { Token } from 'lampros-core';
 // import { Pair } from '@pollum-io/v1-sdk';
-import { Pool } from 'v3sdk18';
+import { Pool } from 'lampros-v3';
 
 import { log } from '../../../util/log';
 import { poolToString, routeToString } from '../../../util/routes';

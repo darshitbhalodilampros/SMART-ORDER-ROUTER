@@ -1,5 +1,5 @@
-import { Token } from 'sdkcore18';
-import { FeeAmount, Pool } from 'v3sdk18';
+import { Token } from 'lampros-core';
+import { FeeAmount, Pool } from 'lampros-v3';
 import _ from 'lodash';
 
 import { ChainId } from '../../util/chains';

@@ -1,9 +1,9 @@
 import { BigNumber } from '@ethersproject/bignumber';
 import { BaseProvider, JsonRpcProvider } from '@ethersproject/providers';
 import DEFAULT_TOKEN_LIST from 'udonswap-default-token-list';
-import { Protocol, SwapRouter, Trade } from 'routersdk18';
-import { Currency, Fraction, Token, TradeType } from 'sdkcore18';
-import { Pool, Position, SqrtPriceMath, TickMath } from 'v3sdk18';
+import { Protocol, SwapRouter, Trade } from 'lampros-router';
+import { Currency, Fraction, Token, TradeType } from 'lampros-core';
+import { Pool, Position, SqrtPriceMath, TickMath } from 'lampros-v3';
 import { TokenList } from 'udonswap-token-lists';
 import retry from 'async-retry';
 import JSBI from 'jsbi';

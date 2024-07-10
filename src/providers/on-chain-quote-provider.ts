@@ -4,8 +4,8 @@ import {
   encodeMixedRouteToPath,
   MixedRouteSDK,
   Protocol,
-} from 'routersdk18';
-import { encodeRouteToPath } from 'v3sdk18';
+} from 'lampros-router';
+import { encodeRouteToPath } from 'lampros-v3';
 import retry, { Options as RetryOptions } from 'async-retry';
 import _ from 'lodash';
 import stats from 'stats-lite';

@@ -1,4 +1,4 @@
-import { Currency, Token, TradeType } from 'sdkcore18';
+import { Currency, Token, TradeType } from 'lampros-core';
 import _ from 'lodash';
 
 import {

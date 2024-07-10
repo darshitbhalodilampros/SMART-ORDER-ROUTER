@@ -1,4 +1,4 @@
-import { Token } from 'sdkcore18';
+import { Token } from 'lampros-core';
 import _ from 'lodash';
 
 import { IERC20Metadata__factory } from '../types/v3/factories/IERC20Metadata__factory';

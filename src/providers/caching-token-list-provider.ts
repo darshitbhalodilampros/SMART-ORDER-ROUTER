@@ -1,5 +1,5 @@
 /* eslint-disable @typescript-eslint/no-non-null-assertion */
-import { Token } from 'sdkcore18';
+import { Token } from 'lampros-core';
 import { TokenInfo, TokenList } from 'udonswap-token-lists';
 import axios from 'axios';
 import _ from 'lodash';

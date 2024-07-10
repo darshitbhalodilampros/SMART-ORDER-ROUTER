@@ -1,5 +1,5 @@
-import { Token } from 'sdkcore18';
-// import { FACTORY_ADDRESS } from 'v3sdk18';
+import { Token } from 'lampros-core';
+// import { FACTORY_ADDRESS } from 'lampros-v3';
 
 import { ChainId } from './chains';
 

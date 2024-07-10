@@ -1,6 +1,6 @@
 import { BigNumber } from '@ethersproject/bignumber';
-import { Protocol } from 'routersdk18';
-import { TradeType } from 'sdkcore18';
+import { Protocol } from 'lampros-router';
+import { TradeType } from 'lampros-core';
 import JSBI from 'jsbi';
 import _ from 'lodash';
 import FixedReverseHeap from 'mnemonist/fixed-reverse-heap';

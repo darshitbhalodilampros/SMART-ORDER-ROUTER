@@ -1,4 +1,4 @@
-import { Token } from 'sdkcore18';
+import { Token } from 'lampros-core';
 import _ from 'lodash';
 
 import { ITokenValidator__factory } from '../types/other/factories/ITokenValidator__factory';

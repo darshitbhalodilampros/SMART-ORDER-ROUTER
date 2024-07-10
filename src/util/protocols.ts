@@ -1,4 +1,4 @@
-import { Protocol } from 'routersdk18';
+import { Protocol } from 'lampros-router';
 
 export const TO_PROTOCOL = (protocol: string): Protocol => {
   switch (protocol.toLowerCase()) {

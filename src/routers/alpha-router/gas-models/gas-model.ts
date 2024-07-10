@@ -1,5 +1,5 @@
 import { BigNumber } from '@ethersproject/bignumber';
-import { Token } from 'sdkcore18';
+import { Token } from 'lampros-core';
 
 import {
   DAI_MODE,

@@ -1,4 +1,4 @@
-import { Ether, NativeCurrency, Token } from 'sdkcore18';
+import { Ether, NativeCurrency, Token } from 'lampros-core';
 
 export enum ChainId {
   MODE = 919

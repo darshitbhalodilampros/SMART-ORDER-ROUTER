@@ -1,7 +1,7 @@
 import { BigNumber } from '@ethersproject/bignumber';
-import { Currency, Token, TradeType } from 'sdkcore18';
+import { Currency, Token, TradeType } from 'lampros-core';
 // import { Pair } from '@pollum-io/v1-sdk';
-import { Pool } from 'v3sdk18';
+import { Pool } from 'lampros-v3';
 import _ from 'lodash';
 
 import {

@@ -3,14 +3,14 @@ import {
   Protocol,
   SwapRouter as SwapRouter02,
   Trade,
-} from 'routersdk18';
-import { Currency, TradeType } from 'sdkcore18';
+} from 'lampros-router';
+import { Currency, TradeType } from 'lampros-core';
 import {
   SwapRouter as UniveralRouter,
   UNIVERSAL_ROUTER_ADDRESS,
-} from 'universalroutersdk18';
+} from 'lampros-universal';
 // import { Route as V1RouteRaw } from '@pollum-io/v1-sdk';
-import { Route as V3RouteRaw } from 'v3sdk18';
+import { Route as V3RouteRaw } from 'lampros-v3';
 import _ from 'lodash';
 
 import {

@@ -1,6 +1,6 @@
 import { BigNumber } from '@ethersproject/bignumber';
-import { Token } from 'sdkcore18';
-import { computePoolAddress, FeeAmount, Pool } from 'v3sdk18';
+import { Token } from 'lampros-core';
+import { computePoolAddress, FeeAmount, Pool } from 'lampros-v3';
 import retry, { Options as RetryOptions } from 'async-retry';
 import _ from 'lodash';
 
