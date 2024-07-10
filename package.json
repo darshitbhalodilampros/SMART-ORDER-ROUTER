@@ -1,6 +1,6 @@
 {
   "name": "lampros-sor",
-  "version": "0.0.1",
+  "version": "0.0.2",
   "description": "Pegasys Smart Order Router",
   "main": "build/main/index.js",
   "typings": "build/main/index.d.ts",
@@ -52,7 +52,7 @@
     "stats-lite": "^2.2.0",
     "udonswap-default-token-list": "1.0.0",
     "udonswap-token-lists": "1.0.0",
-    "lampros-universal": "0.0.1",
+    "lampros-universal": "0.0.2",
     "lampros-v3": "0.0.1"
   },
   "devDependencies": {
