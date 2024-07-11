@@ -98,6 +98,12 @@ const baseTokensByChain: { [chainId in ChainId]?: Token[] } = {
   // ],
 };
 
+export type V3CandidatePools = {
+  poolAccessor: V3PoolAccessor;
+  candidatePools: CandidatePoolsBySelectionCriteria;
+  subgraphPools: V3SubgraphPool[];
+};
+
 export async function getV3CandidatePools({
   tokenIn,
   tokenOut,

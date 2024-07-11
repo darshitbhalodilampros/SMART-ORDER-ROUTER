@@ -1,16 +1,18 @@
 import { BigNumber } from '@ethersproject/bignumber';
-import { Protocol } from 'lampros-router';
-import { TradeType } from 'lampros-core';
 import JSBI from 'jsbi';
+import { TradeType } from 'lampros-core';
+import { Protocol } from 'lampros-router';
 import _ from 'lodash';
 import FixedReverseHeap from 'mnemonist/fixed-reverse-heap';
 import Queue from 'mnemonist/queue';
 
+import { IPortionProvider } from '../../../providers/portion-provider';
 import { ChainId, HAS_L1_FEE } from '../../../util';
 import { CurrencyAmount } from '../../../util/amounts';
 import { log } from '../../../util/log';
 import { metric, MetricLoggerUnit } from '../../../util/metric';
 import { routeAmountsToString, routeToString } from '../../../util/routes';
+import { SwapOptions } from '../../router';
 import { AlphaRouterConfig } from '../alpha-router';
 import { IGasModel, L1ToL2GasCosts, usdGasTokensByChain } from '../gas-models';
 
@@ -35,7 +37,9 @@ export async function getBestSwapRoute(
   routeType: TradeType,
   chainId: ChainId,
   routingConfig: AlphaRouterConfig,
-  gasModel?: IGasModel<V3RouteWithValidQuote>
+  portionProvider: IPortionProvider,
+  gasModel?: IGasModel<V3RouteWithValidQuote>,
+  swapConfig?: SwapOptions
 ): Promise<BestSwapRoute | null> {
   const now = Date.now();
 
@@ -81,7 +85,9 @@ export async function getBestSwapRoute(
     chainId,
     (rq: RouteWithValidQuote) => rq.quoteAdjustedForGas,
     routingConfig,
-    gasModel
+    portionProvider,
+    gasModel,
+    swapConfig
   );
 
   // It is possible we were unable to find any valid route given the quotes.
@@ -143,7 +149,9 @@ export async function getBestSwapRouteBy(
   chainId: ChainId,
   by: (routeQuote: RouteWithValidQuote) => CurrencyAmount,
   routingConfig: AlphaRouterConfig,
-  gasModel?: IGasModel<V3RouteWithValidQuote>
+  portionProvider: IPortionProvider,
+  gasModel?: IGasModel<V3RouteWithValidQuote>,
+  swapConfig?: SwapOptions
 ): Promise<BestSwapRoute | undefined> {
   // Build a map of percentage to sorted list of quotes, with the biggest quote being first in the list.
   const percentToSortedQuotes = _.mapValues(
@@ -546,7 +554,11 @@ export async function getBestSwapRouteBy(
     estimatedGasUsed,
     estimatedGasUsedUSD,
     estimatedGasUsedQuoteToken,
-    routes: routeWithQuotes,
+    routes: portionProvider.getRouteWithQuotePortionAdjusted(
+      routeType,
+      routeWithQuotes,
+      swapConfig
+    ),
   };
 }
 

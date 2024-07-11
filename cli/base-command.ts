@@ -40,6 +40,7 @@ import {
   setGlobalMetric,
   SimulationStatus,
   TenderlySimulator,
+  TokenPropertiesProvider,
   TokenProvider,
   UniswapMulticallProvider,
   // V2PoolProvider,
@@ -48,6 +49,8 @@ import {
 } from '../src';
 import { LegacyGasPriceProvider } from '../src/providers/legacy-gas-price-provider';
 import { OnChainGasPriceProvider } from '../src/providers/on-chain-gas-price-provider';
+import { PortionProvider } from '../src/providers/portion-provider';
+import { OnChainTokenFeeFetcher } from '../src/providers/token-fee-fetcher';
 
 export abstract class BaseCommand extends Command {
   static flags = {
@@ -288,8 +291,15 @@ export abstract class BaseCommand extends Command {
         new V3PoolProvider(chainId, multicall2Provider),
         new NodeJSCache(new NodeCache({ stdTTL: 360, useClones: false }))
       );
-      // const v2PoolProvider = new V2PoolProvider(chainId, multicall2Provider);
 
+      const tokenFeeFetcher = new OnChainTokenFeeFetcher(chainId, provider);
+      const tokenPropertiesProvider = new TokenPropertiesProvider(
+        chainId,
+        new NodeJSCache(new NodeCache({ stdTTL: 360, useClones: false })),
+        tokenFeeFetcher
+      );
+      // const v2PoolProvider = new V2PoolProvider(chainId, multicall2Provider);
+      const portionProvider = new PortionProvider();
       const tenderlySimulator = new TenderlySimulator(
         chainId,
         'http://api.tenderly.co',
@@ -299,6 +309,7 @@ export abstract class BaseCommand extends Command {
         // v2PoolProvider,
         v3PoolProvider,
         provider,
+        portionProvider,
         { [ChainId.MODE]: ChainId.MODE }
       );
 
@@ -306,12 +317,14 @@ export abstract class BaseCommand extends Command {
         chainId,
         provider,
         // v2PoolProvider,
-        v3PoolProvider
+        v3PoolProvider,
+        portionProvider
       );
 
       const simulator = new FallbackTenderlySimulator(
         chainId,
         provider,
+        portionProvider,
         tenderlySimulator,
         ethEstimateGasSimulator
       );

@@ -1,14 +1,14 @@
 import { BigNumber } from '@ethersproject/bignumber';
 import { BaseProvider, JsonRpcProvider } from '@ethersproject/providers';
-import DEFAULT_TOKEN_LIST from 'udonswap-default-token-list';
-import { Protocol, SwapRouter, Trade } from 'lampros-router';
-import { Currency, Fraction, Token, TradeType } from 'lampros-core';
-import { Pool, Position, SqrtPriceMath, TickMath } from 'lampros-v3';
-import { TokenList } from 'udonswap-token-lists';
 import retry from 'async-retry';
 import JSBI from 'jsbi';
+import { Currency, Fraction, Token, TradeType } from 'lampros-core';
+import { Protocol, SwapRouter, Trade, ZERO } from 'lampros-router';
+import { Pool, Position, SqrtPriceMath, TickMath } from 'lampros-v3';
 import _ from 'lodash';
 import NodeCache from 'node-cache';
+import DEFAULT_TOKEN_LIST from 'udonswap-default-token-list';
+import { TokenList } from 'udonswap-token-lists';
 
 import {
   CachedRoutes,
@@ -24,6 +24,7 @@ import {
   IOnChainQuoteProvider,
   IRouteCachingProvider,
   ISwapRouterProvider,
+  ITokenPropertiesProvider,
   // IV2QuoteProvider,
   // IV2SubgraphProvider,
   LegacyGasPriceProvider,
@@ -34,6 +35,7 @@ import {
   // StaticV2SubgraphProvider,
   StaticV3SubgraphProvider,
   SwapRouterProvider,
+  TokenPropertiesProvider,
   UniswapMulticallProvider,
   URISubgraphProvider,
   // V2QuoteProvider,
@@ -48,6 +50,12 @@ import {
   GasPrice,
   IGasPriceProvider,
 } from '../../providers/gas-price-provider';
+import {
+  IPortionProvider,
+  PortionProvider,
+} from '../../providers/portion-provider';
+import { ProviderConfig } from '../../providers/provider';
+import { OnChainTokenFeeFetcher } from '../../providers/token-fee-fetcher';
 import { ITokenProvider, TokenProvider } from '../../providers/token-provider';
 import {
   ITokenValidatorProvider,
@@ -122,6 +130,7 @@ import {
 } from './gas-models/gas-model';
 // import { MixedRouteHeuristicGasModelFactory } from './gas-models/mixedRoute/mixed-route-heuristic-gas-model';
 // import { V2HeuristicGasModelFactory } from './gas-models/v2/v2-heuristic-gas-model';
+import { NATIVE_OVERHEAD } from './gas-models/v3/gas-costs';
 import { V3HeuristicGasModelFactory } from './gas-models/v3/v3-heuristic-gas-model';
 import { GetQuotesResult, V3Quoter } from './quoters';
 
@@ -225,6 +234,16 @@ export type AlphaRouterParams = {
    * A provider for caching the best route given an amount, quoteToken, tradeType
    */
   routeCachingProvider?: IRouteCachingProvider;
+
+  /**
+   * A provider for getting token properties for special tokens like fee-on-transfer tokens.
+   */
+  tokenPropertiesProvider?: ITokenPropertiesProvider;
+
+  /**
+   * A provider for computing the portion-related data for routes and quotes.
+   */
+  portionProvider?: IPortionProvider;
 };
 
 export class MapWithLowerCaseKey<V> extends Map<string, V> {
@@ -339,12 +358,17 @@ export type AlphaRouterConfig = {
    * 40% of input => Route 3
    */
   distributionPercent: number;
+  /**
+   * Flag for token properties provider to enable fetching fee-on-transfer tokens.
+   */
+  enableFeeOnTransferFeeFetching?: boolean;
 };
 
 export class AlphaRouter
   implements
-  IRouter<AlphaRouterConfig>,
-  ISwapToRatio<AlphaRouterConfig, SwapAndAddConfig> {
+    IRouter<AlphaRouterConfig>,
+    ISwapToRatio<AlphaRouterConfig, SwapAndAddConfig>
+{
   protected chainId: ChainId;
   protected provider: BaseProvider;
   protected multicall2Provider: UniswapMulticallProvider;
@@ -370,6 +394,8 @@ export class AlphaRouter
   protected v3Quoter: V3Quoter;
   // protected mixedQuoter: MixedQuoter;
   protected routeCachingProvider?: IRouteCachingProvider;
+  protected tokenPropertiesProvider: ITokenPropertiesProvider;
+  protected portionProvider: IPortionProvider;
 
   constructor({
     chainId,
@@ -393,6 +419,8 @@ export class AlphaRouter
     // arbitrumGasDataProvider,
     simulator,
     routeCachingProvider,
+    tokenPropertiesProvider,
+    portionProvider,
   }: AlphaRouterParams) {
     this.chainId = chainId;
     this.provider = provider;
@@ -470,6 +498,46 @@ export class AlphaRouter
           break;
       }
     }
+
+    if (tokenValidatorProvider) {
+      this.tokenValidatorProvider = tokenValidatorProvider;
+    } else if (this.chainId === ChainId.MODE) {
+      this.tokenValidatorProvider = new TokenValidatorProvider(
+        this.chainId,
+        this.multicall2Provider,
+        new NodeJSCache(new NodeCache({ stdTTL: 30000, useClones: false }))
+      );
+    }
+    if (tokenPropertiesProvider) {
+      this.tokenPropertiesProvider = tokenPropertiesProvider;
+    } else {
+      this.tokenPropertiesProvider = new TokenPropertiesProvider(
+        this.chainId,
+        new NodeJSCache(new NodeCache({ stdTTL: 86400, useClones: false })),
+        new OnChainTokenFeeFetcher(this.chainId, provider)
+      );
+    }
+
+    this.blockedTokenListProvider =
+      blockedTokenListProvider ??
+      new CachingTokenListProvider(
+        chainId,
+        UNSUPPORTED_TOKENS as TokenList,
+        new NodeJSCache(new NodeCache({ stdTTL: 3600, useClones: false }))
+      );
+    this.tokenProvider =
+      tokenProvider ??
+      new CachingTokenProviderWithFallback(
+        chainId,
+        new NodeJSCache(new NodeCache({ stdTTL: 3600, useClones: false })),
+        new CachingTokenListProvider(
+          chainId,
+          DEFAULT_TOKEN_LIST,
+          new NodeJSCache(new NodeCache({ stdTTL: 3600, useClones: false }))
+        ),
+        new TokenProvider(chainId, this.multicall2Provider)
+      );
+    this.portionProvider = portionProvider ?? new PortionProvider();
 
     // this.v2PoolProvider =
     //   v2PoolProvider ??
@@ -831,6 +899,24 @@ export class AlphaRouter
     swapConfig?: SwapOptions,
     partialRoutingConfig: Partial<AlphaRouterConfig> = {}
   ): Promise<SwapRoute | null> {
+    const originalAmount = amount;
+    if (tradeType === TradeType.EXACT_OUTPUT) {
+      const portionAmount = this.portionProvider.getPortionAmount(
+        amount,
+        tradeType,
+        swapConfig
+      );
+      if (portionAmount && portionAmount.greaterThan(ZERO)) {
+        // In case of exact out swap, before we route, we need to make sure that the
+        // token out amount accounts for flat portion, and token in amount after the best swap route contains the token in equivalent of portion.
+        // In other words, in case a pool's LP fee bps is lower than the portion bps (0.01%/0.05% for v3), a pool can go insolvency.
+        // This is because instead of the swapper being responsible for the portion,
+        // the pool instead gets responsible for the portion.
+        // The addition below avoids that situation.
+        amount = amount.add(portionAmount);
+      }
+    }
+
     const { currencyIn, currencyOut } =
       this.determineCurrencyInOutFromTradeType(
         tradeType,
@@ -871,11 +957,21 @@ export class AlphaRouter
     const gasPriceWei = await this.getGasPriceWei();
 
     const quoteToken = quoteCurrency.wrapped;
+    const providerConfig: ProviderConfig = {
+      ...routingConfig,
+      blockNumber,
+      additionalGasOverhead: NATIVE_OVERHEAD(
+        this.chainId,
+        amount.currency,
+        quoteCurrency
+      ),
+    };
 
     const [v3GasModel] = await this.getGasModels(
       gasPriceWei,
       amount.currency.wrapped,
-      quoteToken
+      quoteToken,
+      providerConfig
     );
 
     // Create a Set to sanitize the protocols input, a Set of undefined becomes an empty set,
@@ -965,7 +1061,8 @@ export class AlphaRouter
         routingConfig,
         v3GasModel,
         // mixedRouteGasModel,
-        // gasPriceWei
+        // gasPriceWei,
+        swapConfig
       );
     }
 
@@ -982,7 +1079,8 @@ export class AlphaRouter
         routingConfig,
         v3GasModel,
         // mixedRouteGasModel,
-        // gasPriceWei
+        // gasPriceWei,
+        swapConfig
       );
     }
 
@@ -1159,9 +1257,44 @@ export class AlphaRouter
       );
     }
 
-    const swapRoute: SwapRoute = {
+    const tokenOutAmount =
+      tradeType === TradeType.EXACT_OUTPUT
+        ? originalAmount // we need to pass in originalAmount instead of amount, because amount already added portionAmount in case of exact out swap
+        : quote;
+    const portionAmount = this.portionProvider.getPortionAmount(
+      tokenOutAmount,
+      tradeType,
+      swapConfig
+    );
+    const portionQuoteAmount = this.portionProvider.getPortionQuoteAmount(
+      tradeType,
       quote,
+      amount, // we need to pass in amount instead of originalAmount here, because amount here needs to add the portion for exact out
+      portionAmount
+    );
+
+    // we need to correct quote and quote gas adjusted for exact output when portion is part of the exact out swap
+    const correctedQuote = this.portionProvider.getQuote(
+      tradeType,
+      quote,
+      portionQuoteAmount
+    );
+
+    const correctedQuoteGasAdjusted = this.portionProvider.getQuoteGasAdjusted(
+      tradeType,
       quoteGasAdjusted,
+      portionQuoteAmount
+    );
+    const quoteGasAndPortionAdjusted =
+      this.portionProvider.getQuoteGasAndPortionAdjusted(
+        tradeType,
+        quoteGasAdjusted,
+        portionAmount
+      );
+
+    const swapRoute: SwapRoute = {
+      quote: correctedQuote,
+      quoteGasAdjusted: correctedQuoteGasAdjusted,
       estimatedGasUsed,
       estimatedGasUsedQuoteToken,
       estimatedGasUsedUSD,
@@ -1170,6 +1303,8 @@ export class AlphaRouter
       trade,
       methodParameters,
       blockNumber: BigNumber.from(await blockNumber),
+      portionAmount: portionAmount,
+      quoteGasAndPortionAdjusted: quoteGasAndPortionAdjusted,
     };
 
     if (
@@ -1217,7 +1352,8 @@ export class AlphaRouter
     routingConfig: AlphaRouterConfig,
     v3GasModel: IGasModel<V3RouteWithValidQuote>,
     // mixedRouteGasModel: IGasModel<MixedRouteWithValidQuote>,
-    // gasPriceWei: BigNumber
+    // gasPriceWei: BigNumber,
+    swapConfig?: SwapOptions
   ): Promise<BestSwapRoute | null> {
     log.info(
       {
@@ -1323,7 +1459,9 @@ export class AlphaRouter
       tradeType,
       this.chainId,
       routingConfig,
-      v3GasModel
+      this.portionProvider,
+      v3GasModel,
+      swapConfig
     );
   }
 
@@ -1337,7 +1475,8 @@ export class AlphaRouter
     routingConfig: AlphaRouterConfig,
     v3GasModel: IGasModel<V3RouteWithValidQuote>,
     // mixedRouteGasModel: IGasModel<MixedRouteWithValidQuote>,
-    // gasPriceWei: BigNumber
+    // gasPriceWei: BigNumber,
+    swapConfig?: SwapOptions
   ): Promise<BestSwapRoute | null> {
     // Generate our distribution of amounts, i.e. fractions of the input amount.
     // We will get quotes for fractions of the input amount for different routes, then
@@ -1438,7 +1577,9 @@ export class AlphaRouter
       tradeType,
       this.chainId,
       routingConfig,
-      v3GasModel
+      this.portionProvider,
+      v3GasModel,
+      swapConfig
     );
 
     if (bestSwapRoute) {
@@ -1499,10 +1640,9 @@ export class AlphaRouter
   private async getGasModels(
     gasPriceWei: BigNumber,
     amountToken: Token,
-    quoteToken: Token
-  ): Promise<
-    [IGasModel<V3RouteWithValidQuote>]
-  > {
+    quoteToken: Token,
+    providerConfig?: ProviderConfig
+  ): Promise<[IGasModel<V3RouteWithValidQuote>]> {
     const beforeGasModel = Date.now();
 
     const v3GasModelPromise = this.v3GasModelFactory.buildGasModel({
@@ -1513,6 +1653,7 @@ export class AlphaRouter
       quoteToken,
       // v2poolProvider: this.v2PoolProvider,
       l2GasDataProvider: this.l2GasDataProvider,
+      providerConfig: providerConfig,
     });
 
     // const mixedRouteGasModelPromise =
@@ -1525,8 +1666,7 @@ export class AlphaRouter
     //     v2poolProvider: this.v2PoolProvider,
     //   });
 
-    const [v3GasModel] = await Promise.all([
-      v3GasModelPromise]);
+    const [v3GasModel] = await Promise.all([v3GasModelPromise]);
 
     metric.putMetric(
       'GasModelCreation',
@@ -1646,8 +1786,8 @@ export class AlphaRouter
     }
 
     let hasV3Route = false;
-    let hasV1Route = false;
-    let hasMixedRoute = false;
+    const hasV1Route = false;
+    const hasMixedRoute = false;
     for (const routeAmount of routeAmounts) {
       if (routeAmount.protocol === Protocol.V3) {
         hasV3Route = true;

@@ -64,10 +64,7 @@ export function computeAllV3Routes(
 //   });
 // }
 
-export function computeAllRoutes<
-  TPool extends Pool,
-  TRoute extends V3Route
->(
+export function computeAllRoutes<TPool extends Pool, TRoute extends V3Route>(
   tokenIn: Token,
   tokenOut: Token,
   buildRoute: (route: TPool[], tokenIn: Token, tokenOut: Token) => TRoute,
@@ -82,6 +79,7 @@ export function computeAllRoutes<
     tokenOut: Token,
     currentRoute: TPool[],
     poolsUsed: boolean[],
+    tokensVisited: Set<string>,
     _previousTokenOut?: Token
   ) => {
     if (currentRoute.length > maxHops) {
@@ -112,6 +110,11 @@ export function computeAllRoutes<
         ? curPool.token1
         : curPool.token0;
 
+      if (tokensVisited.has(currentTokenOut.address.toLowerCase())) {
+        continue;
+      }
+
+      tokensVisited.add(currentTokenOut.address.toLowerCase());
       currentRoute.push(curPool);
       poolsUsed[i] = true;
       computeRoutes(
@@ -119,14 +122,22 @@ export function computeAllRoutes<
         tokenOut,
         currentRoute,
         poolsUsed,
+        tokensVisited,
         currentTokenOut
       );
       poolsUsed[i] = false;
       currentRoute.pop();
+      tokensVisited.delete(currentTokenOut.address.toLowerCase());
     }
   };
 
-  computeRoutes(tokenIn, tokenOut, [], poolsUsed);
+  computeRoutes(
+    tokenIn,
+    tokenOut,
+    [],
+    poolsUsed,
+    new Set([tokenIn.address.toLowerCase()])
+  );
 
   log.info(
     {

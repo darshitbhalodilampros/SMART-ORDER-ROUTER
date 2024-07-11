@@ -1,6 +1,7 @@
 import { BigNumber } from '@ethersproject/bignumber';
 import { Token } from 'lampros-core';
 
+import { ProviderConfig } from '../../../providers/provider';
 import {
   DAI_MODE,
   // DAI_ROLLUX_TANENBAUM,
@@ -48,8 +49,9 @@ export type BuildOnChainGasModelFactoryType = {
   quoteToken: Token;
   // v2poolProvider: IV2PoolProvider;
   l2GasDataProvider?:
-  | IL2GasDataProvider<OptimismGasData>
-  | IL2GasDataProvider<ArbitrumGasData>;
+    | IL2GasDataProvider<OptimismGasData>
+    | IL2GasDataProvider<ArbitrumGasData>;
+  providerConfig?: ProviderConfig;
 };
 
 export type BuildV2GasModelFactoryType = {
@@ -57,6 +59,7 @@ export type BuildV2GasModelFactoryType = {
   gasPriceWei: BigNumber;
   // poolProvider: IV2PoolProvider;
   token: Token;
+  providerConfig?: ProviderConfig;
 };
 
 /**
@@ -101,6 +104,7 @@ export type IGasModel<TRouteWithValidQuote extends RouteWithValidQuote> = {
 //     gasPriceWei,
 //     poolProvider,
 //     token,
+//     providerConfig
 //   }: BuildV2GasModelFactoryType): Promise<IGasModel<V1RouteWithValidQuote>>;
 // }
 
@@ -124,6 +128,7 @@ export abstract class IOnChainGasModelFactory {
     quoteToken,
     // v2poolProvider,
     l2GasDataProvider,
+    providerConfig,
   }: BuildOnChainGasModelFactoryType): Promise<
     IGasModel<V3RouteWithValidQuote>
   >;
