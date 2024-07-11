@@ -3,9 +3,9 @@ import { BigNumber } from '@ethersproject/bignumber';
 import { JsonRpcProvider } from '@ethersproject/providers';
 import { Command, flags } from '@oclif/command';
 import { ParserOutput } from '@oclif/parser/lib/parse';
-import DEFAULT_TOKEN_LIST from '@pollum-io/default-token-list';
-import { Currency, CurrencyAmount, Token } from '@pollum-io/sdk-core';
-import { MethodParameters } from '@pollum-io/v3-sdk';
+import DEFAULT_TOKEN_LIST from 'udonswap-default-token-list';
+import { Currency, CurrencyAmount, Token } from 'lampros-core';
+import { MethodParameters } from 'lampros-v3';
 import bunyan, { default as Logger } from 'bunyan';
 import bunyanDebugStream from 'bunyan-debug-stream';
 import _ from 'lodash';
@@ -42,7 +42,7 @@ import {
   TenderlySimulator,
   TokenProvider,
   UniswapMulticallProvider,
-  V2PoolProvider,
+  // V2PoolProvider,
   V3PoolProvider,
   V3RouteWithValidQuote,
 } from '../src';
@@ -102,7 +102,7 @@ export abstract class BaseCommand extends Command {
     chainId: flags.integer({
       char: 'c',
       required: false,
-      default: ChainId.ROLLUX,
+      default: ChainId.MODE,
       options: CHAIN_IDS_LIST,
     }),
     tokenListURI: flags.string({
@@ -129,8 +129,8 @@ export abstract class BaseCommand extends Command {
     return this._log
       ? this._log
       : bunyan.createLogger({
-        name: 'Default Logger',
-      });
+          name: 'Default Logger',
+        });
   }
 
   get router() {
@@ -200,19 +200,19 @@ export abstract class BaseCommand extends Command {
       streams: debugJSON
         ? undefined
         : [
-          {
-            level: logLevel,
-            type: 'stream',
-            stream: bunyanDebugStream({
-              basepath: __dirname,
-              forceColor: false,
-              showDate: false,
-              showPid: false,
-              showLoggerName: false,
-              showLevel: !!debug,
-            }),
-          },
-        ],
+            {
+              level: logLevel,
+              type: 'stream',
+              stream: bunyanDebugStream({
+                basepath: __dirname,
+                forceColor: false,
+                showDate: false,
+                showPid: false,
+                showLoggerName: false,
+                showLevel: !!debug,
+              }),
+            },
+          ],
     });
 
     if (debug || debugJSON) {
@@ -288,7 +288,7 @@ export abstract class BaseCommand extends Command {
         new V3PoolProvider(chainId, multicall2Provider),
         new NodeJSCache(new NodeCache({ stdTTL: 360, useClones: false }))
       );
-      const v2PoolProvider = new V2PoolProvider(chainId, multicall2Provider);
+      // const v2PoolProvider = new V2PoolProvider(chainId, multicall2Provider);
 
       const tenderlySimulator = new TenderlySimulator(
         chainId,
@@ -296,16 +296,16 @@ export abstract class BaseCommand extends Command {
         process.env.TENDERLY_USER!,
         process.env.TENDERLY_PROJECT!,
         process.env.TENDERLY_ACCESS_KEY!,
-        v2PoolProvider,
+        // v2PoolProvider,
         v3PoolProvider,
         provider,
-        { [ChainId.ROLLUX]: ChainId.ROLLUX }
+        { [ChainId.MODE]: ChainId.MODE }
       );
 
       const ethEstimateGasSimulator = new EthEstimateGasSimulator(
         chainId,
         provider,
-        v2PoolProvider,
+        // v2PoolProvider,
         v3PoolProvider
       );
 

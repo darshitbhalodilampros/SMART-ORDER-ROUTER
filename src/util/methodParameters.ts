@@ -1,10 +1,10 @@
+import { Currency, TradeType } from 'lampros-core';
 import {
   // MixedRouteSDK,
   Protocol,
   SwapRouter as SwapRouter02,
   Trade,
 } from 'lampros-router';
-import { Currency, TradeType } from 'lampros-core';
 import {
   SwapRouter as UniveralRouter,
   UNIVERSAL_ROUTER_ADDRESS,

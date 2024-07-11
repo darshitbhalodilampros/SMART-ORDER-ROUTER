@@ -1,5 +1,5 @@
-import { Protocol } from 'lampros-router';
 import { Token, TradeType } from 'lampros-core';
+import { Protocol } from 'lampros-router';
 import { FeeAmount } from 'lampros-v3';
 import _ from 'lodash';
 
@@ -286,7 +286,7 @@ export async function getV3CandidatePools({
   let top2EthQuoteTokenPool: V3SubgraphPool[] = [];
   if (
     WRAPPED_NATIVE_CURRENCY[chainId]?.symbol ==
-    WRAPPED_NATIVE_CURRENCY[ChainId.MODE]?.symbol &&
+      WRAPPED_NATIVE_CURRENCY[ChainId.MODE]?.symbol &&
     tokenOut.symbol != 'ETH' &&
     tokenOut.symbol != 'WETH'
   ) {
@@ -431,7 +431,8 @@ export async function getV3CandidatePools({
   });
 
   const printV3SubgraphPool = (s: V3SubgraphPool) =>
-    `${tokenAccessor.getTokenByAddress(s.token0.id)?.symbol ?? s.token0.id}/${tokenAccessor.getTokenByAddress(s.token1.id)?.symbol ?? s.token1.id
+    `${tokenAccessor.getTokenByAddress(s.token0.id)?.symbol ?? s.token0.id}/${
+      tokenAccessor.getTokenByAddress(s.token1.id)?.symbol ?? s.token1.id
     }/${s.feeTier}`;
 
   log.info(
@@ -470,8 +471,10 @@ export async function getV3CandidatePools({
 
     if (!tokenA || !tokenB) {
       log.info(
-        `Dropping candidate pool for ${subgraphPool.token0.id}/${subgraphPool.token1.id
-        }/${fee} because ${tokenA ? subgraphPool.token1.id : subgraphPool.token0.id
+        `Dropping candidate pool for ${subgraphPool.token0.id}/${
+          subgraphPool.token1.id
+        }/${fee} because ${
+          tokenA ? subgraphPool.token1.id : subgraphPool.token0.id
         } not found by token provider`
       );
       return undefined;

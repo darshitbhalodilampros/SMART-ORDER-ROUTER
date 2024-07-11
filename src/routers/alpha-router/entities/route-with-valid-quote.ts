@@ -1,6 +1,6 @@
 import { BigNumber } from '@ethersproject/bignumber';
-import { Protocol } from 'lampros-router';
 import { Token, TradeType } from 'lampros-core';
+import { Protocol } from 'lampros-router';
 // import { Pool } from 'lampros-v3';
 import _ from 'lodash';
 
@@ -19,9 +19,7 @@ import { IGasModel } from '../gas-models/gas-model';
  * @interface IRouteWithValidQuote
  * @template Route
  */
-export interface IRouteWithValidQuote<
-  Route extends V3Route
-> {
+export interface IRouteWithValidQuote<Route extends V3Route> {
   amount: CurrencyAmount;
   percent: number;
   // If exact in, this is (quote - gasCostInToken). If exact out, this is (quote + gasCostInToken).
@@ -52,7 +50,7 @@ export type IV3RouteWithValidQuote = {
 
 export type RouteWithValidQuote =
   // | V1RouteWithValidQuote
-  | V3RouteWithValidQuote
+  V3RouteWithValidQuote;
 // | MixedRouteWithValidQuote;
 
 // export type V1RouteWithValidQuoteParams = {
