@@ -1,5 +1,5 @@
-import { Protocol } from 'lampros-router';
 import { Percent } from 'lampros-core';
+import { Protocol } from 'lampros-router';
 // import { Pair } from '@pollum-io/v1-sdk';
 import { Pool } from 'lampros-v3';
 import _ from 'lodash';
@@ -11,32 +11,26 @@ import { V3_CORE_FACTORY_ADDRESSES } from './addresses';
 
 import { CurrencyAmount } from '.';
 
-export const routeToString = (
-  route: V3Route
-): string => {
+export const routeToString = (route: V3Route): string => {
   const routeStr = [];
-  const tokens =
-    route.protocol === Protocol.V3
-      ? route.tokenPath
-      : null
+  const tokens = route.protocol === Protocol.V3 ? route.tokenPath : null;
   // MixedRoute and V1Route have path
   // route.path;
   const tokenPath = _.map(tokens, (token) => `${token.symbol}`);
-  const pools =
-    route.protocol === Protocol.V3
-      ? route.pools : null
+  const pools = route.protocol === Protocol.V3 ? route.pools : null;
   // : route.pairs;
   const poolFeePath = _.map(pools, (pool) => {
-    return `${pool instanceof Pool
-      ? ` -- ${pool.fee / 10000}% [${Pool.getAddress(
-        pool.token0,
-        pool.token1,
-        pool.fee,
-        undefined,
-        V3_CORE_FACTORY_ADDRESSES[pool.chainId]
-      )}]`
-      : null
-      } --> `;
+    return `${
+      pool instanceof Pool
+        ? ` -- ${pool.fee / 10000}% [${Pool.getAddress(
+            pool.token0,
+            pool.token1,
+            pool.fee,
+            undefined,
+            V3_CORE_FACTORY_ADDRESSES[pool.chainId]
+          )}]`
+        : null
+    } --> `;
   });
 
   for (let i = 0; i < tokenPath.length; i++) {
@@ -64,8 +58,9 @@ export const routeAmountsToString = (
     const portion = amount.divide(total);
     const percent = new Percent(portion.numerator, portion.denominator);
     /// @dev special case for MIXED routes we want to show user friendly V2+V3 instead
-    return `[${protocol == Protocol.V3 ? protocol : 'V2 + V3'
-      }] ${percent.toFixed(2)}% = ${routeToString(route)}`;
+    return `[${
+      protocol == Protocol.V3 ? protocol : 'V2 + V3'
+    }] ${percent.toFixed(2)}% = ${routeToString(route)}`;
   });
 
   return _.join(routeStrings, ', ');
@@ -79,6 +74,7 @@ export const routeAmountToString = (
 };
 
 export const poolToString = (p: Pool): string => {
-  return `${p.token0.symbol}/${p.token1.symbol}${p instanceof Pool ? `/${p.fee / 10000}%` : ``
-    }`;
+  return `${p.token0.symbol}/${p.token1.symbol}${
+    p instanceof Pool ? `/${p.fee / 10000}%` : ``
+  }`;
 };

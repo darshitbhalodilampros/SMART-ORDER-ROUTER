@@ -8,6 +8,7 @@ import {
   initSwapRouteFromExisting,
 } from '../util/gas-factory-helpers';
 
+import { IPortionProvider } from './portion-provider';
 import { ProviderConfig } from './provider';
 import { SimulationStatus, Simulator } from './simulation-provider';
 // import { IV2PoolProvider } from './v2/pool-provider';
@@ -21,9 +22,10 @@ export class EthEstimateGasSimulator extends Simulator {
     chainId: ChainId,
     provider: JsonRpcProvider,
     // v2PoolProvider: IV2PoolProvider,
-    v3PoolProvider: IV3PoolProvider
+    v3PoolProvider: IV3PoolProvider,
+    portionProvider: IPortionProvider
   ) {
-    super(provider, chainId);
+    super(provider, portionProvider, chainId);
     // this.v2PoolProvider = v2PoolProvider;
     this.v3PoolProvider = v3PoolProvider;
   }
@@ -31,7 +33,8 @@ export class EthEstimateGasSimulator extends Simulator {
     fromAddress: string,
     swapOptions: SwapOptions,
     route: SwapRoute,
-    l2GasData?: ArbitrumGasData | OptimismGasData
+    l2GasData?: ArbitrumGasData | OptimismGasData,
+    providerConfig?: ProviderConfig
   ): Promise<SwapRoute> {
     const currencyIn = route.trade.inputAmount.currency;
     let estimatedGasUsed: BigNumber;
@@ -94,7 +97,8 @@ export class EthEstimateGasSimulator extends Simulator {
       estimatedGasUsed,
       // this.v2PoolProvider,
       this.v3PoolProvider,
-      l2GasData
+      l2GasData,
+      providerConfig
     );
 
     return {
@@ -102,10 +106,12 @@ export class EthEstimateGasSimulator extends Simulator {
         route,
         // this.v2PoolProvider,
         this.v3PoolProvider,
+        this.portionProvider,
         quoteGasAdjusted,
         estimatedGasUsed,
         estimatedGasUsedQuoteToken,
-        estimatedGasUsedUSD
+        estimatedGasUsedUSD,
+        swapOptions
       ),
       simulationStatus: SimulationStatus.Succeeded,
     };
@@ -116,7 +122,7 @@ export class EthEstimateGasSimulator extends Simulator {
   }
   protected async simulateTransaction(
     fromAddress: string,
-    swapOptions: any,
+    swapOptions: SwapOptions,
     swapRoute: SwapRoute,
     l2GasData?: OptimismGasData | ArbitrumGasData | undefined,
     // eslint-disable-next-line @typescript-eslint/no-unused-vars

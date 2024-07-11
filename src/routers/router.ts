@@ -1,17 +1,11 @@
 import { BigNumber } from '@ethersproject/bignumber';
+import { Currency, Fraction, Percent, Token, TradeType } from 'lampros-core';
 import {
   CondensedAddLiquidityOptions,
   // MixedRouteSDK,
   Protocol,
   Trade,
 } from 'lampros-router';
-import {
-  Currency,
-  Fraction,
-  Percent,
-  Token,
-  TradeType,
-} from 'lampros-core';
 import { SwapOptions as UniversalRouterSwapOptions } from 'lampros-universal';
 // import { Route as V1RouteRaw } from '@pollum-io/v1-sdk';
 import {
@@ -51,6 +45,14 @@ export type SwapRoute = {
    */
   quoteGasAdjusted: CurrencyAmount;
   /**
+   * The quote adjusted for the estimated gas used by the swap as well as the portion amount, if applicable.
+   * This is computed by estimating the amount of gas used by the swap, converting
+   * this estimate to be in terms of the quote token, and subtracting that from the quote.
+   * Then it uses the IPortionProvider.getPortionAdjustedQuote method to adjust the quote for the portion amount.
+   * i.e. quoteGasAdjusted = quote - estimatedGasUsedQuoteToken - portionAmount
+   */
+  quoteGasAndPortionAdjusted?: CurrencyAmount;
+  /**
    * The estimate of the gas used by the swap.
    */
   estimatedGasUsed: BigNumber;
@@ -89,6 +91,10 @@ export type SwapRoute = {
    * 2 if simulation was successful (simulated gas estimates are returned)
    */
   simulationStatus?: SimulationStatus;
+  /**
+   * Portion amount either echoed from upstream routing-api for exact out or calculated from portionBips for exact in
+   */
+  portionAmount?: CurrencyAmount;
 };
 
 export type MethodParameters = SDKMethodParameters & { to: string };
@@ -147,13 +153,13 @@ export type SwapOptionsSwapRouter02 = {
     s: string;
   } & (
     | {
-      amount: string;
-      deadline: string;
-    }
+        amount: string;
+        deadline: string;
+      }
     | {
-      nonce: string;
-      expiry: string;
-    }
+        nonce: string;
+        expiry: string;
+      }
   );
 };
 

@@ -1,7 +1,7 @@
 import { JsonRpcProvider } from '@ethersproject/providers';
+import { BigNumber } from 'ethers/lib/ethers';
 import { TradeType } from 'lampros-core';
 import { PERMIT2_ADDRESS } from 'lampros-universal';
-import { BigNumber } from 'ethers/lib/ethers';
 
 import { SwapOptions, SwapRoute, SwapType } from '../routers';
 import { Erc20__factory } from '../types/other/factories/Erc20__factory';
@@ -13,6 +13,7 @@ import {
   SWAP_ROUTER_02_ADDRESSES,
 } from '../util';
 
+import { IPortionProvider } from './portion-provider';
 import { ProviderConfig } from './provider';
 import { ArbitrumGasData, OptimismGasData } from './v3/gas-data-provider';
 
@@ -37,13 +38,18 @@ export enum SimulationStatus {
  */
 export abstract class Simulator {
   protected provider: JsonRpcProvider;
-
+  protected portionProvider: IPortionProvider;
   /**
    * Returns a new SwapRoute with simulated gas estimates
    * @returns SwapRoute
    */
-  constructor(provider: JsonRpcProvider, protected chainId: ChainId) {
+  constructor(
+    provider: JsonRpcProvider,
+    portionProvider: IPortionProvider,
+    protected chainId: ChainId
+  ) {
     this.provider = provider;
+    this.portionProvider = portionProvider;
   }
 
   public async simulate(

@@ -33,7 +33,8 @@ export type OptimismGasData = {
 };
 
 export class OptimismGasDataProvider
-  implements IL2GasDataProvider<OptimismGasData> {
+  implements IL2GasDataProvider<OptimismGasData>
+{
   protected gasOracleAddress: string;
 
   constructor(
@@ -105,7 +106,8 @@ export type ArbitrumGasData = {
 };
 
 export class ArbitrumGasDataProvider
-  implements IL2GasDataProvider<ArbitrumGasData> {
+  implements IL2GasDataProvider<ArbitrumGasData>
+{
   protected gasFeesAddress: string;
   protected blockNumberOverride: number | Promise<number> | undefined;
   constructor(

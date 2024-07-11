@@ -4,13 +4,8 @@
  * @export
  * @interface IRouteCachingProvider
  */
+import { Currency, CurrencyAmount, Token, TradeType } from 'lampros-core';
 import { Protocol } from 'lampros-router';
-import {
-  Currency,
-  CurrencyAmount,
-  Token,
-  TradeType,
-} from 'lampros-core';
 
 import { ChainId } from '../../../util';
 

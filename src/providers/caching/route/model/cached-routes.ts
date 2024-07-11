@@ -1,5 +1,5 @@
-import { Protocol } from 'lampros-router';
 import { Token, TradeType } from 'lampros-core';
+import { Protocol } from 'lampros-router';
 import _ from 'lodash';
 
 import {

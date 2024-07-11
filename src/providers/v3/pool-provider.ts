@@ -1,7 +1,7 @@
 import { BigNumber } from '@ethersproject/bignumber';
+import retry, { Options as RetryOptions } from 'async-retry';
 import { Token } from 'lampros-core';
 import { computePoolAddress, FeeAmount, Pool } from 'lampros-v3';
-import retry, { Options as RetryOptions } from 'async-retry';
 import _ from 'lodash';
 
 import { IUniswapV3PoolState__factory } from '../../types/v3/factories/IUniswapV3PoolState__factory';
@@ -89,7 +89,7 @@ export class V3PoolProvider implements IV3PoolProvider {
       minTimeout: 50,
       maxTimeout: 500,
     }
-  ) { }
+  ) {}
 
   public async getPools(
     tokenPairs: [Token, Token, FeeAmount][],
@@ -131,9 +131,10 @@ export class V3PoolProvider implements IV3PoolProvider {
     ]);
 
     log.info(
-      `Got liquidity and slot0s for ${poolAddressSet.size} pools ${providerConfig?.blockNumber
-        ? `as of block: ${providerConfig?.blockNumber}.`
-        : ``
+      `Got liquidity and slot0s for ${poolAddressSet.size} pools ${
+        providerConfig?.blockNumber
+          ? `as of block: ${providerConfig?.blockNumber}.`
+          : ``
       }`
     );
 

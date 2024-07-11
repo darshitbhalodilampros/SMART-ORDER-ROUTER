@@ -1,12 +1,13 @@
 /* eslint-disable @typescript-eslint/no-non-null-assertion */
+import JSBI from 'jsbi';
 import { Token } from 'lampros-core';
 import { FeeAmount, Pool } from 'lampros-v3';
-import JSBI from 'jsbi';
 import _ from 'lodash';
 
 import { unparseFeeAmount } from '../../util/amounts';
 import { ChainId, WRAPPED_NATIVE_CURRENCY } from '../../util/chains';
 import { log } from '../../util/log';
+import { ProviderConfig } from '../provider';
 import {
   DAI_MODE,
   // DAI_ROLLUX_TANENBAUM,
@@ -53,11 +54,12 @@ export class StaticV3SubgraphProvider implements IV3SubgraphProvider {
   constructor(
     private chainId: ChainId,
     private poolProvider: IV3PoolProvider
-  ) { }
+  ) {}
 
   public async getPools(
     tokenIn?: Token,
-    tokenOut?: Token
+    tokenOut?: Token,
+    providerConfig?: ProviderConfig
   ): Promise<V3SubgraphPool[]> {
     log.info('In static subgraph provider for V3');
     const bases = BASES_TO_CHECK_TRADES_AGAINST[this.chainId];
@@ -96,7 +98,10 @@ export class StaticV3SubgraphProvider implements IV3SubgraphProvider {
     log.info(
       `V3 Static subgraph provider about to get ${pairs.length} pools on-chain`
     );
-    const poolAccessor = await this.poolProvider.getPools(pairs);
+    const poolAccessor = await this.poolProvider.getPools(
+      pairs,
+      providerConfig
+    );
     const pools = poolAccessor.getAllPools();
 
     const poolAddressSet = new Set<string>();

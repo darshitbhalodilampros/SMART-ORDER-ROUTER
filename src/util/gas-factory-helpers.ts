@@ -1,16 +1,13 @@
 import { BigNumber } from '@ethersproject/bignumber';
+import { Currency, CurrencyAmount, Token, TradeType } from 'lampros-core';
 import { Protocol } from 'lampros-router';
-import {
-  Currency,
-  CurrencyAmount,
-  Token,
-  TradeType,
-} from 'lampros-core';
 // import { Pair } from '@pollum-io/v1-sdk/dist/entities';
 import { FeeAmount, Pool } from 'lampros-v3';
 import _ from 'lodash';
 
 // import { IV2PoolProvider } from '../providers';
+import { IPortionProvider } from '../providers/portion-provider';
+import { ProviderConfig } from '../providers/provider';
 import {
   ArbitrumGasData,
   OptimismGasData,
@@ -24,6 +21,7 @@ import {
   // V1RouteWithValidQuote,
   V3RouteWithValidQuote,
 } from '../routers';
+import { SwapOptions } from '../routers/router';
 import { ChainId, log, WRAPPED_NATIVE_CURRENCY } from '../util';
 
 import { buildTrade } from './methodParameters';
@@ -57,7 +55,8 @@ import { buildTrade } from './methodParameters';
 
 export async function getHighestLiquidityV3NativePool(
   token: Token,
-  poolProvider: IV3PoolProvider
+  poolProvider: IV3PoolProvider,
+  providerConfig?: ProviderConfig
 ): Promise<Pool | null> {
   const nativeCurrency = WRAPPED_NATIVE_CURRENCY[token.chainId as ChainId]!;
 
@@ -72,7 +71,7 @@ export async function getHighestLiquidityV3NativePool(
     })
     .value();
 
-  const poolAccessor = await poolProvider.getPools(nativePools);
+  const poolAccessor = await poolProvider.getPools(nativePools, providerConfig);
 
   const pools = _([
     FeeAmount.HIGH,
@@ -102,7 +101,8 @@ export async function getHighestLiquidityV3NativePool(
 
 export async function getHighestLiquidityV3USDPool(
   chainId: ChainId,
-  poolProvider: IV3PoolProvider
+  poolProvider: IV3PoolProvider,
+  providerConfig?: ProviderConfig
 ): Promise<Pool> {
   const usdTokens = usdGasTokensByChain[chainId];
   const wrappedCurrency = WRAPPED_NATIVE_CURRENCY[chainId]!;
@@ -128,7 +128,7 @@ export async function getHighestLiquidityV3USDPool(
     })
     .value();
 
-  const poolAccessor = await poolProvider.getPools(usdPools);
+  const poolAccessor = await poolProvider.getPools(usdPools, providerConfig);
 
   const pools = _([
     FeeAmount.HIGH,
@@ -257,7 +257,8 @@ export async function calculateGasUsed(
   simulatedGasUsed: BigNumber,
   // v2PoolProvider: IV2PoolProvider,
   v3PoolProvider: IV3PoolProvider,
-  l2GasData?: ArbitrumGasData | OptimismGasData
+  l2GasData?: ArbitrumGasData | OptimismGasData,
+  providerConfig?: ProviderConfig
 ) {
   const quoteToken = route.quote.currency.wrapped;
   const gasPriceWei = route.gasPriceWei;
@@ -280,7 +281,8 @@ export async function calculateGasUsed(
 
   const usdPool: Pool = await getHighestLiquidityV3USDPool(
     chainId,
-    v3PoolProvider
+    v3PoolProvider,
+    providerConfig
   );
 
   const gasCostUSD = await getGasCostInUSD(usdPool, costNativeCurrency);
@@ -289,8 +291,12 @@ export async function calculateGasUsed(
   // get fee in terms of quote token
   if (!quoteToken.equals(nativeCurrency)) {
     const nativePools = await Promise.all([
-      getHighestLiquidityV3NativePool(quoteToken, v3PoolProvider),
-      // getV2NativePool(quoteToken, v2PoolProvider),
+      getHighestLiquidityV3NativePool(
+        quoteToken,
+        v3PoolProvider,
+        providerConfig
+      ),
+      // getV2NativePool(quoteToken, v2PoolProvider,providerConfig),
     ]);
     const nativePool = nativePools.find((pool) => pool !== null);
 
@@ -329,10 +335,12 @@ export function initSwapRouteFromExisting(
   swapRoute: SwapRoute,
   // v2PoolProvider: IV2PoolProvider,
   v3PoolProvider: IV3PoolProvider,
+  portionProvider: IPortionProvider,
   quoteGasAdjusted: CurrencyAmount<Currency>,
   estimatedGasUsed: BigNumber,
   estimatedGasUsedQuoteToken: CurrencyAmount<Currency>,
-  estimatedGasUsedUSD: CurrencyAmount<Currency>
+  estimatedGasUsedUSD: CurrencyAmount<Currency>,
+  swapOptions: SwapOptions
 ): SwapRoute {
   const currencyIn = swapRoute.trade.inputAmount.currency;
   const currencyOut = swapRoute.trade.outputAmount.currency;
@@ -423,23 +431,41 @@ export function initSwapRouteFromExisting(
     tradeType,
     routesWithValidQuote
   );
+
+  const quoteGasAndPortionAdjusted = swapRoute.portionAmount
+    ? portionProvider.getQuoteGasAndPortionAdjusted(
+        swapRoute.trade.tradeType,
+        quoteGasAdjusted,
+        swapRoute.portionAmount
+      )
+    : undefined;
+
+  const routesWithValidQuotePortionAdjusted =
+    portionProvider.getRouteWithQuotePortionAdjusted(
+      swapRoute.trade.tradeType,
+      routesWithValidQuote,
+      swapOptions
+    );
+
   return {
     quote: swapRoute.quote,
     quoteGasAdjusted,
+    quoteGasAndPortionAdjusted,
     estimatedGasUsed,
     estimatedGasUsedQuoteToken,
     estimatedGasUsedUSD,
     gasPriceWei: BigNumber.from(swapRoute.gasPriceWei),
     trade,
-    route: routesWithValidQuote,
+    route: routesWithValidQuotePortionAdjusted,
     blockNumber: BigNumber.from(swapRoute.blockNumber),
     methodParameters: swapRoute.methodParameters
       ? ({
-        calldata: swapRoute.methodParameters.calldata,
-        value: swapRoute.methodParameters.value,
-        to: swapRoute.methodParameters.to,
-      } as MethodParameters)
+          calldata: swapRoute.methodParameters.calldata,
+          value: swapRoute.methodParameters.value,
+          to: swapRoute.methodParameters.to,
+        } as MethodParameters)
       : undefined,
     simulationStatus: swapRoute.simulationStatus,
+    portionAmount: swapRoute.portionAmount,
   };
 }
