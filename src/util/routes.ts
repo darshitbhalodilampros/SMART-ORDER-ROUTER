@@ -51,6 +51,7 @@ export const routeAmountsToString = (
     (total: CurrencyAmount, cur: RouteWithValidQuote) => {
       return total.add(cur.amount);
     },
+    // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
     CurrencyAmount.fromRawAmount(routeAmounts[0]!.amount.currency, 0)
   );
 

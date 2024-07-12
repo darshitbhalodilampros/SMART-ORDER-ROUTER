@@ -55,7 +55,8 @@ export abstract class IRouteCachingProvider {
       amount,
       quoteToken,
       tradeType,
-      protocols
+      protocols,
+      blockNumber
     );
 
     return this.filterExpiredCachedRoutes(cachedRoute, blockNumber);
@@ -156,7 +157,8 @@ export abstract class IRouteCachingProvider {
     amount: CurrencyAmount<Currency>,
     quoteToken: Token,
     tradeType: TradeType,
-    protocols: Protocol[]
+    protocols: Protocol[],
+    currentBlockNumber: number
   ): Promise<CachedRoutes | undefined>;
 
   /**

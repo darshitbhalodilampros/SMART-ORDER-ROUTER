@@ -11,15 +11,12 @@ export const QUOTER_V2_ADDRESSES: AddressMap = {
   [ChainId.MODE]: '0x9613da2D81495589CCe112CC4C7fC650A5eC2610', // mode
 };
 
-// export const MIXED_ROUTE_QUOTER_V1_ADDRESSES: AddressMap = {
-//   [ChainId.ROLLUX]: '0xD8EDc12630284A057461300dE5317b148F7F8926',
-// };
-
 export const UNISWAP_MULTICALL_ADDRESSES: AddressMap = {
   [ChainId.MODE]: '0xcd9845c3233Dbd3274Be6054f21CE26C79e5a65E', // mode
   // [ChainId.ROLLUX_TANENBAUM]: '0x0fC3574BFff5FF644A11B7B13A70B484F8e01D08'
 };
 
+// eslint-disable-next-line @typescript-eslint/no-unused-vars
 export const SWAP_ROUTER_02_ADDRESSES = (_chainId: number) => {
   return '0x22dc8CA232debF877eFF0628FF9215519e8083f4'; // mode
 };
@@ -57,11 +54,4 @@ export const WETH9: {
     'WETH',
     'Wrapped Ether'
   ),
-  // [ChainId.ROLLUX_TANENBAUM]: new Token(
-  //   ChainId.ROLLUX_TANENBAUM,
-  //   '0x4200000000000000000000000000000000000006',
-  //   18,
-  //   'WSYS',
-  //   'Wrapped Syscoin'
-  // ),
 };

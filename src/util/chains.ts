@@ -1,13 +1,12 @@
+/* eslint-disable @typescript-eslint/no-non-null-assertion */
 import { Ether, NativeCurrency, Token } from 'lampros-core';
 
 export enum ChainId {
-  MODE = 919
+  MODE = 919,
 }
 
 // WIP: Gnosis, Moonbeam
-export const SUPPORTED_CHAINS: ChainId[] = [
-  ChainId.MODE
-];
+export const SUPPORTED_CHAINS: ChainId[] = [ChainId.MODE];
 
 // export const V2_SUPPORTED = [ChainId.ROLLUX_TANENBAUM, ChainId.ROLLUX];
 
@@ -22,20 +21,18 @@ export const ID_TO_CHAIN_ID = (id: number): ChainId => {
   switch (id) {
     case 919:
       return ChainId.MODE;
-    // case 57000:
-    //   return ChainId.ROLLUX_TANENBAUM;
     default:
       throw new Error(`Unknown chain id: ${id}`);
   }
 };
 
 export enum ChainName {
-  MODE = 'mode'
+  MODE = 'mode',
 }
 
 export enum NativeCurrencyName {
   // Strings match input for CLI
-  ETH = "ETH",
+  ETH = 'ETH',
 }
 export const NATIVE_NAMES_BY_ID: { [chainId: number]: string[] } = {
   [ChainId.MODE]: [
@@ -43,25 +40,16 @@ export const NATIVE_NAMES_BY_ID: { [chainId: number]: string[] } = {
     'Ether',
     '0xeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeee',
   ],
-  // [ChainId.ROLLUX_TANENBAUM]: [
-  //   'SYS',
-  //   'Syscoin',
-  //   '0xeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeee',
-  // ],
 };
 
 export const NATIVE_CURRENCY: { [chainId: number]: NativeCurrencyName } = {
-  [ChainId.MODE]: NativeCurrencyName.ETH
-  // [ChainId.ROLLUX]: NativeCurrencyName.SYS,
-  // [ChainId.ROLLUX_TANENBAUM]: NativeCurrencyName.SYS,
+  [ChainId.MODE]: NativeCurrencyName.ETH,
 };
 
 export const ID_TO_NETWORK_NAME = (id: number): ChainName => {
   switch (id) {
     case 919:
       return ChainName.MODE;
-    // case 57000:
-    //   return ChainName.ROLLUX_TANENBAUM;
     default:
       throw new Error(`Unknown chain id: ${id}`);
   }
@@ -74,10 +62,7 @@ export const CHAIN_IDS_LIST = Object.values(ChainId).map((c) =>
 export const ID_TO_PROVIDER = (id: ChainId): string => {
   switch (id) {
     case ChainId.MODE:
-      return 'https://sepolia.mode.network	'!;
-    // case ChainId.ROLLUX_TANENBAUM:
-    //   return 'https://rpc-tanenbaum.rollux.com/'!;
-
+      return 'https://sepolia.mode.network'!;
     default:
       throw new Error(`Chain id: ${id} not supported`);
   }
@@ -91,14 +76,6 @@ export const WRAPPED_NATIVE_CURRENCY: { [chainId in ChainId]: Token } = {
     'WETH',
     'Wrapped Ether'
   ),
-
-  // [ChainId.ROLLUX_TANENBAUM]: new Token(
-  //   ChainId.ROLLUX_TANENBAUM,
-  //   '0x4200000000000000000000000000000000000006',
-  //   18,
-  //   'WSYS',
-  //   'Wrapped Syscoin'
-  // ),
 };
 
 export class ExtendedEther extends Ether {
