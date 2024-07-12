@@ -1,6 +1,6 @@
 {
   "name": "lampros-sor",
-  "version": "0.0.6",
+  "version": "0.0.7",
   "description": "Pegasys Smart Order Router",
   "main": "build/main/index.js",
   "typings": "build/main/index.d.ts",
