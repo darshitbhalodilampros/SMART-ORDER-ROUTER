@@ -351,7 +351,7 @@ export class OnChainQuoteProvider implements IOnChainQuoteProvider {
     // routes.some((route) => route.protocol === Protocol.MIXED);
 
     /// Validate that there are no incorrect routes / function combinations
-    this.validateRoutes(routes, functionName, useMixedRouteQuoter);
+    // this.validateRoutes(routes, functionName, useMixedRouteQuoter);
 
     let multicallChunk = this.batchParams.multicallChunk;
     let gasLimitOverride = this.batchParams.gasLimitPerCall;
@@ -466,7 +466,7 @@ export class OnChainQuoteProvider implements IOnChainQuoteProvider {
                     [string, string],
                     [BigNumber, BigNumber[], number[], BigNumber] // amountIn/amountOut, sqrtPriceX96AfterList, initializedTicksCrossedList, gasEstimate
                   >({
-                    address: this.getQuoterAddress(useMixedRouteQuoter),
+                    address: this.getQuoterAddress(false),
                     contractInterface: useMixedRouteQuoter
                       ? IMixedRouteQuoterV1__factory.createInterface()
                       : IQuoterV2__factory.createInterface(),
@@ -994,22 +994,22 @@ export class OnChainQuoteProvider implements IOnChainQuoteProvider {
    * @param functionName
    * @param useMixedRouteQuoter true if there are ANY V2Routes or MixedRoutes in the routes parameter
    */
-  protected validateRoutes(
-    routes: V3Route[],
-    functionName: string,
-    useMixedRouteQuoter: boolean
-  ) {
-    /// We do not send any V3Routes to new qutoer becuase it is not deployed on chains besides mainnet
-    if (
-      routes.some((route) => route.protocol === Protocol.V3) &&
-      useMixedRouteQuoter
-    ) {
-      throw new Error(`Cannot use mixed route quoter with V3 routes`);
-    }
+  // protected validateRoutes(
+  //   routes: V3Route[],
+  //   functionName: string,
+  //   // useMixedRouteQuoter: boolean
+  // ) {
+  //   /// We do not send any V3Routes to new qutoer becuase it is not deployed on chains besides mainnet
+  //   if (
+  //     routes.some((route) => route.protocol === Protocol.V3) &&
+  //     useMixedRouteQuoter
+  //   ) {
+  //     throw new Error(`Cannot use mixed route quoter with V3 routes`);
+  //   }
 
-    /// We cannot call quoteExactOutput with V2 or Mixed routes
-    if (functionName === 'quoteExactOutput' && useMixedRouteQuoter) {
-      throw new Error('Cannot call quoteExactOutput with V2 or Mixed routes');
-    }
-  }
+  //   /// We cannot call quoteExactOutput with V2 or Mixed routes
+  //   if (functionName === 'quoteExactOutput' && useMixedRouteQuoter) {
+  //     throw new Error('Cannot call quoteExactOutput with V2 or Mixed routes');
+  //   }
+  // }
 }
