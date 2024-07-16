@@ -1,13 +1,10 @@
-import { Interface } from '@ethersproject/abi';
-import { BigNumber } from '@ethersproject/bignumber';
-import { parseBytes32String } from '@ethersproject/strings';
 import { ChainId, Token } from 'lampros-core';
 import _ from 'lodash';
 
 import { IERC20Metadata__factory } from '../types/v3/factories/IERC20Metadata__factory';
 import { log, WRAPPED_NATIVE_CURRENCY } from '../util';
 
-import { IMulticallProvider, Result } from './multicall-provider';
+import { IMulticallProvider } from './multicall-provider';
 import { ProviderConfig } from './provider';
 
 /**
@@ -573,94 +570,6 @@ export class TokenProvider implements ITokenProvider {
     protected multicall2Provider: IMulticallProvider
   ) {}
 
-  private async getTokenSymbol(
-    addresses: string[],
-    providerConfig?: ProviderConfig
-  ): Promise<{
-    result: {
-      blockNumber: BigNumber;
-      results: Result<[string]>[];
-    };
-    isBytes32: boolean;
-  }> {
-    let result;
-    let isBytes32 = false;
-
-    try {
-      result =
-        await this.multicall2Provider.callSameFunctionOnMultipleContracts<
-          undefined,
-          [string]
-        >({
-          addresses,
-          contractInterface: IERC20Metadata__factory.createInterface(),
-          functionName: 'symbol',
-          providerConfig,
-        });
-    } catch (error) {
-      log.error(
-        { addresses },
-        `TokenProvider.getTokenSymbol[string] failed with error ${error}. Trying with bytes32.`
-      );
-
-      const bytes32Interface = new Interface([
-        {
-          inputs: [],
-          name: 'symbol',
-          outputs: [
-            {
-              internalType: 'bytes32',
-              name: '',
-              type: 'bytes32',
-            },
-          ],
-          stateMutability: 'view',
-          type: 'function',
-        },
-      ]);
-
-      try {
-        result =
-          await this.multicall2Provider.callSameFunctionOnMultipleContracts<
-            undefined,
-            [string]
-          >({
-            addresses,
-            contractInterface: bytes32Interface,
-            functionName: 'symbol',
-            providerConfig,
-          });
-        isBytes32 = true;
-      } catch (error) {
-        log.fatal(
-          { addresses },
-          `TokenProvider.getTokenSymbol[bytes32] failed with error ${error}.`
-        );
-
-        throw new Error(
-          '[TokenProvider.getTokenSymbol] Impossible to fetch token symbol.'
-        );
-      }
-    }
-
-    return { result, isBytes32 };
-  }
-
-  private async getTokenDecimals(
-    addresses: string[],
-    providerConfig?: ProviderConfig
-  ) {
-    return this.multicall2Provider.callSameFunctionOnMultipleContracts<
-      undefined,
-      [number]
-    >({
-      addresses,
-      contractInterface: IERC20Metadata__factory.createInterface(),
-      functionName: 'decimals',
-      providerConfig,
-    });
-  }
-
   public async getTokens(
     _addresses: string[],
     providerConfig?: ProviderConfig
@@ -675,12 +584,27 @@ export class TokenProvider implements ITokenProvider {
 
     if (addresses.length > 0) {
       const [symbolsResult, decimalsResult] = await Promise.all([
-        this.getTokenSymbol(addresses, providerConfig),
-        this.getTokenDecimals(addresses, providerConfig),
+        this.multicall2Provider.callSameFunctionOnMultipleContracts<
+          undefined,
+          [string]
+        >({
+          addresses,
+          contractInterface: IERC20Metadata__factory.createInterface(),
+          functionName: 'symbol',
+          providerConfig,
+        }),
+        this.multicall2Provider.callSameFunctionOnMultipleContracts<
+          undefined,
+          [number]
+        >({
+          addresses,
+          contractInterface: IERC20Metadata__factory.createInterface(),
+          functionName: 'decimals',
+          providerConfig,
+        }),
       ]);
 
-      const isBytes32 = symbolsResult.isBytes32;
-      const { results: symbols } = symbolsResult.result;
+      const { results: symbols } = symbolsResult;
       const { results: decimals } = decimalsResult;
 
       for (let i = 0; i < addresses.length; i++) {
@@ -700,9 +624,7 @@ export class TokenProvider implements ITokenProvider {
           continue;
         }
 
-        const symbol = isBytes32
-          ? parseBytes32String(symbolResult.result[0]!)
-          : symbolResult.result[0]!;
+        const symbol = symbolResult.result[0]!;
         const decimal = decimalResult.result[0]!;
 
         addressToToken[address.toLowerCase()] = new Token(

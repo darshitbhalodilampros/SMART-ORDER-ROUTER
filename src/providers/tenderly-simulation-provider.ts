@@ -5,13 +5,7 @@ import { BigNumber } from 'ethers/lib/ethers';
 import { ChainId } from 'lampros-core';
 import { PERMIT2_ADDRESS, UNIVERSAL_ROUTER_ADDRESS } from 'lampros-universal';
 
-import {
-  metric,
-  MetricLoggerUnit,
-  SwapOptions,
-  SwapRoute,
-  SwapType,
-} from '../routers';
+import { SwapOptions, SwapRoute, SwapType } from '../routers';
 import { Erc20__factory } from '../types/other/factories/Erc20__factory';
 import { Permit2__factory } from '../types/other/factories/Permit2__factory';
 import { log, MAX_UINT160, SWAP_ROUTER_02_ADDRESSES } from '../util';
@@ -309,11 +303,6 @@ export class TenderlySimulator extends Simulator {
       log.info(
         `Tenderly simulation universal router request body: ${body}, having latencies ${latencies} in milliseconds.`
       );
-      metric.putMetric(
-        'TenderlySimulationUniversalRouterLatencies',
-        Date.now() - before,
-        MetricLoggerUnit.Milliseconds
-      );
 
       // Validate tenderly response body
       if (
@@ -404,11 +393,6 @@ export class TenderlySimulator extends Simulator {
       const latencies = Date.now() - before;
       log.info(
         `Tenderly simulation swap router02 request body: ${body}, having latencies ${latencies} in milliseconds.`
-      );
-      metric.putMetric(
-        'TenderlySimulationSwapRouter02Latencies',
-        latencies,
-        MetricLoggerUnit.Milliseconds
       );
 
       // Validate tenderly response body

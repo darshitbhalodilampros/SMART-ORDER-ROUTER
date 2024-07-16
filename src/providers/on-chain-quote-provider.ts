@@ -294,8 +294,7 @@ export class OnChainQuoteProvider implements IOnChainQuoteProvider {
       return this.quoterAddressOverride;
     }
     const quoterAddress = useMixedRouteQuoter
-      ? // ? MIXED_ROUTE_QUOTER_V1_ADDRESSES[this.chainId]
-        null
+      ? null
       : QUOTER_V2_ADDRESSES[this.chainId];
 
     if (!quoterAddress) {

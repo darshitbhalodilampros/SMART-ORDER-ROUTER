@@ -584,9 +584,10 @@ export class ExtendedEther extends Ether {
 const cachedNativeCurrency: { [chainId: number]: NativeCurrency } = {};
 
 export function nativeOnChain(chainId: number): NativeCurrency {
-  if (cachedNativeCurrency[chainId] != undefined) {
+  if (cachedNativeCurrency[chainId] != undefined)
     return cachedNativeCurrency[chainId]!;
-  }
+  cachedNativeCurrency[chainId] = ExtendedEther.onChain(chainId);
+  return cachedNativeCurrency[chainId]!;
   // if (isMatic(chainId)) {
   //   cachedNativeCurrency[chainId] = new MaticNativeCurrency(chainId);
   // } else if (isCelo(chainId)) {
@@ -602,6 +603,4 @@ export function nativeOnChain(chainId: number): NativeCurrency {
   // } else {
   //   cachedNativeCurrency[chainId] = ExtendedEther.onChain(chainId);
   // }
-  cachedNativeCurrency[chainId] = ExtendedEther.onChain(chainId);
-  return cachedNativeCurrency[chainId]!;
 }

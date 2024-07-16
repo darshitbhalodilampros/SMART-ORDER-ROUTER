@@ -12,7 +12,7 @@ import {
   TokenFeeResult,
 } from './token-fee-fetcher';
 import {
-  DEFAULT_ALLOWLIST,
+  // DEFAULT_ALLOWLIST,
   TokenValidationResult,
 } from './token-validator-provider';
 
@@ -44,7 +44,7 @@ export class TokenPropertiesProvider implements ITokenPropertiesProvider {
     private chainId: ChainId,
     private tokenPropertiesCache: ICache<TokenPropertiesResult>,
     private tokenFeeFetcher: ITokenFeeFetcher,
-    private allowList = DEFAULT_ALLOWLIST,
+    // private allowList = DEFAULT_ALLOWLIST,
     private positiveCacheEntryTTL = POSITIVE_CACHE_ENTRY_TTL,
     private negativeCacheEntryTTL = NEGATIVE_CACHE_ENTRY_TTL
   ) {}
@@ -64,47 +64,47 @@ export class TokenPropertiesProvider implements ITokenPropertiesProvider {
 
     const addressesToFetchFeesOnchain: string[] = [];
     const addressesRaw = this.buildAddressesRaw(tokens);
-
-    const tokenProperties = await this.tokenPropertiesCache.batchGet(
-      addressesRaw
-    );
+    console.log(addressesRaw);
+    // const tokenProperties = await this.tokenPropertiesCache.batchGet(
+    //   addressesRaw
+    // );
 
     // Check if we have cached token validation results for any tokens.
-    for (const address of addressesRaw) {
-      const cachedValue = tokenProperties[address];
-      if (cachedValue) {
-        metric.putMetric(
-          'TokenPropertiesProviderBatchGetCacheHit',
-          1,
-          MetricLoggerUnit.Count
-        );
-        const tokenFee = cachedValue.tokenFeeResult;
-        const tokenFeeResultExists: BigNumber | undefined =
-          tokenFee && (tokenFee.buyFeeBps || tokenFee.sellFeeBps);
+    // for (const address of addressesRaw) {
+    //   const cachedValue = tokenProperties[address];
+    //   if (cachedValue) {
+    //     metric.putMetric(
+    //       'TokenPropertiesProviderBatchGetCacheHit',
+    //       1,
+    //       MetricLoggerUnit.Count
+    //     );
+    //     const tokenFee = cachedValue.tokenFeeResult;
+    //     const tokenFeeResultExists: BigNumber | undefined =
+    //       tokenFee && (tokenFee.buyFeeBps || tokenFee.sellFeeBps);
 
-        if (tokenFeeResultExists) {
-          metric.putMetric(
-            `TokenPropertiesProviderCacheHitTokenFeeResultExists${tokenFeeResultExists}`,
-            1,
-            MetricLoggerUnit.Count
-          );
-        } else {
-          metric.putMetric(
-            `TokenPropertiesProviderCacheHitTokenFeeResultNotExists`,
-            1,
-            MetricLoggerUnit.Count
-          );
-        }
+    //     if (tokenFeeResultExists) {
+    //       metric.putMetric(
+    //         `TokenPropertiesProviderCacheHitTokenFeeResultExists${tokenFeeResultExists}`,
+    //         1,
+    //         MetricLoggerUnit.Count
+    //       );
+    //     } else {
+    //       metric.putMetric(
+    //         `TokenPropertiesProviderCacheHitTokenFeeResultNotExists`,
+    //         1,
+    //         MetricLoggerUnit.Count
+    //       );
+    //     }
 
-        tokenToResult[address] = cachedValue;
-      } else if (this.allowList.has(address)) {
-        tokenToResult[address] = {
-          tokenValidationResult: TokenValidationResult.UNKN,
-        };
-      } else {
-        addressesToFetchFeesOnchain.push(address);
-      }
-    }
+    //     tokenToResult[address] = cachedValue;
+    //   } else if (this.allowList.has(address)) {
+    //     tokenToResult[address] = {
+    //       tokenValidationResult: TokenValidationResult.UNKN,
+    //     };
+    //   } else {
+    //     addressesToFetchFeesOnchain.push(address);
+    //   }
+    // }
 
     if (addressesToFetchFeesOnchain.length > 0) {
       let tokenFeeMap: TokenFeeMap = {};
