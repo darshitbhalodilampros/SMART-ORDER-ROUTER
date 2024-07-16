@@ -11,13 +11,7 @@ import {
   ITokenValidatorProvider,
   TokenValidationResult,
 } from '../../../providers';
-import {
-  CurrencyAmount,
-  log,
-  metric,
-  MetricLoggerUnit,
-  poolToString,
-} from '../../../util';
+import { CurrencyAmount, log, poolToString } from '../../../util';
 import { V3Route } from '../../router';
 import { AlphaRouterConfig } from '../alpha-router';
 import { RouteWithValidQuote } from '../entities/route-with-valid-quote';
@@ -143,27 +137,8 @@ export abstract class BaseQuoter<
       routingConfig
     ).then((routesResult) => {
       if (routesResult.routes.length == 1) {
-        metric.putMetric(
-          `${this.protocol}QuoterSingleRoute`,
-          1,
-          MetricLoggerUnit.Count
-        );
         percents = [100];
         amounts = [amount];
-      }
-
-      if (routesResult.routes.length > 0) {
-        metric.putMetric(
-          `${this.protocol}QuoterRoutesFound`,
-          routesResult.routes.length,
-          MetricLoggerUnit.Count
-        );
-      } else {
-        metric.putMetric(
-          `${this.protocol}QuoterNoRoutesFound`,
-          routesResult.routes.length,
-          MetricLoggerUnit.Count
-        );
       }
 
       return this.getQuotes(

@@ -134,7 +134,6 @@ export class V3Quoter extends BaseQuoter<V3CandidatePools, V3Route> {
     candidatePools?: CandidatePoolsBySelectionCriteria,
     gasModel?: IGasModel<V3RouteWithValidQuote>
   ): Promise<GetQuotesResult> {
-    const beforeGetQuotes = Date.now();
     log.info('Starting to get V3 quotes');
 
     if (gasModel === undefined) {
@@ -229,12 +228,6 @@ export class V3Quoter extends BaseQuoter<V3CandidatePools, V3Route> {
         routesWithValidQuotes.push(routeWithValidQuote);
       }
     }
-
-    metric.putMetric(
-      'V3GetQuotesLoad',
-      Date.now() - beforeGetQuotes,
-      MetricLoggerUnit.Milliseconds
-    );
 
     return {
       routesWithValidQuotes,
