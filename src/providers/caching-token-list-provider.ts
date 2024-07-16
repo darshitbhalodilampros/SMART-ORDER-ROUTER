@@ -145,13 +145,6 @@ export class CachingTokenListProvider
     return tokenProvider;
   }
 
-  /**
-   * If no addresses array is specified, all tokens in the token list are
-   * returned.
-   *
-   * @param _addresses (optional) The token addresses to get.
-   * @returns Promise<TokenAccessor> A token accessor with methods for accessing the tokens.
-   */
   public async getTokens(_addresses: string[]): Promise<TokenAccessor> {
     const addressToToken: { [address: string]: Token } = {};
     const symbolToToken: { [symbol: string]: Token } = {};

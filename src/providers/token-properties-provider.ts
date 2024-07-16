@@ -11,10 +11,7 @@ import {
   TokenFeeMap,
   TokenFeeResult,
 } from './token-fee-fetcher';
-import {
-  // DEFAULT_ALLOWLIST,
-  TokenValidationResult,
-} from './token-validator-provider';
+import { TokenValidationResult } from './token-validator-provider';
 
 export const DEFAULT_TOKEN_PROPERTIES_RESULT: TokenPropertiesResult = {
   tokenFeeResult: DEFAULT_TOKEN_FEE_RESULT,
@@ -43,10 +40,7 @@ export class TokenPropertiesProvider implements ITokenPropertiesProvider {
   constructor(
     private chainId: ChainId,
     private tokenPropertiesCache: ICache<TokenPropertiesResult>,
-    private tokenFeeFetcher: ITokenFeeFetcher,
-    // private allowList = DEFAULT_ALLOWLIST,
-    private positiveCacheEntryTTL = POSITIVE_CACHE_ENTRY_TTL,
-    private negativeCacheEntryTTL = NEGATIVE_CACHE_ENTRY_TTL
+    private tokenFeeFetcher: ITokenFeeFetcher
   ) {}
 
   public async getTokensProperties(
@@ -71,7 +65,7 @@ export class TokenPropertiesProvider implements ITokenPropertiesProvider {
 
     // Check if we have cached token validation results for any tokens.
     // for (const address of addressesRaw) {
-    //   const cachedValue = tokenProperties[address];
+    //   // const cachedValue = tokenProperties[address];
     //   if (cachedValue) {
     //     metric.putMetric(
     //       'TokenPropertiesProviderBatchGetCacheHit',
@@ -155,8 +149,7 @@ export class TokenPropertiesProvider implements ITokenPropertiesProvider {
             // at this point, we are confident that the tokens are FOT, so we can hardcode the validation result
             return this.tokenPropertiesCache.set(
               this.CACHE_KEY(this.chainId, address),
-              tokenPropertiesResult,
-              this.positiveCacheEntryTTL
+              tokenPropertiesResult
             );
           } else {
             metric.putMetric(
@@ -173,8 +166,7 @@ export class TokenPropertiesProvider implements ITokenPropertiesProvider {
 
             return this.tokenPropertiesCache.set(
               this.CACHE_KEY(this.chainId, address),
-              tokenPropertiesResult,
-              this.negativeCacheEntryTTL
+              tokenPropertiesResult
             );
           }
         })
