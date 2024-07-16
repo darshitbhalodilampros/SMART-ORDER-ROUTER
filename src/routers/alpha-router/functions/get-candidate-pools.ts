@@ -251,9 +251,9 @@ export async function getV3CandidatePools({
     filteredPools = [];
     for (const pool of allPools) {
       const token0InBlocklist =
-        await blockedTokenListProvider.hasTokenByAddress(pool.token0.id);
+        await blockedTokenListProvider.getTokenByAddress(pool.token0.id);
       const token1InBlocklist =
-        await blockedTokenListProvider.hasTokenByAddress(pool.token1.id);
+        await blockedTokenListProvider.getTokenByAddress(pool.token1.id);
 
       if (token0InBlocklist || token1InBlocklist) {
         continue;
