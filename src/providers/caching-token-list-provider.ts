@@ -199,6 +199,7 @@ export class CachingTokenListProvider
 
   public async getTokenByAddress(address: string): Promise<Token | undefined> {
     if (!this.chainAddressToTokenInfo[this.chainId.toString()]) {
+      log.info('printing undefined');
       return undefined;
     }
 
