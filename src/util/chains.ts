@@ -277,7 +277,7 @@ export const ID_TO_PROVIDER = (id: ChainId): string => {
     // case ChainId.BASE:
     //   return process.env.JSON_RPC_PROVIDER_BASE!;
     case ChainId.MODE:
-      return 'https://sepolia.mode.network'!;
+      return process.env.JSON_RPC_PROVIDER_MODE!;
     default:
       throw new Error(`Chain id: ${id} not supported`);
   }
