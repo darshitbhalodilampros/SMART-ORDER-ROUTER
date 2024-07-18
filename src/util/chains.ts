@@ -54,7 +54,7 @@ export const CHAIN_IDS_LIST = Object.values(ChainId).map((c) =>
 export const ID_TO_PROVIDER = (id: ChainId): string => {
   switch (id) {
     case ChainId.MODE:
-      return process.env.JSON_RPC_PROVIDER_MODE!;
+      return 'https://sepolia.mode.network'!;
     default:
       throw new Error(`Chain id: ${id} not supported`);
   }
