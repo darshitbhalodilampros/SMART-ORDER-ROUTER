@@ -42,7 +42,6 @@ import {
   TokenPropertiesProvider,
   TokenProvider,
   UniswapMulticallProvider,
-  V2PoolProvider,
   V3PoolProvider,
   V3RouteWithValidQuote,
 } from '../src';
@@ -104,7 +103,7 @@ export abstract class BaseCommand extends Command {
     chainId: flags.integer({
       char: 'c',
       required: false,
-      default: ChainId.MAINNET,
+      default: ChainId.MODE,
       options: CHAIN_IDS_LIST,
     }),
     tokenListURI: flags.string({
@@ -131,8 +130,8 @@ export abstract class BaseCommand extends Command {
     return this._log
       ? this._log
       : bunyan.createLogger({
-        name: 'Default Logger',
-      });
+          name: 'Default Logger',
+        });
   }
 
   get router() {
@@ -202,19 +201,19 @@ export abstract class BaseCommand extends Command {
       streams: debugJSON
         ? undefined
         : [
-          {
-            level: logLevel,
-            type: 'stream',
-            stream: bunyanDebugStream({
-              basepath: __dirname,
-              forceColor: false,
-              showDate: false,
-              showPid: false,
-              showLoggerName: false,
-              showLevel: !!debug,
-            }),
-          },
-        ],
+            {
+              level: logLevel,
+              type: 'stream',
+              stream: bunyanDebugStream({
+                basepath: __dirname,
+                forceColor: false,
+                showDate: false,
+                showPid: false,
+                showLoggerName: false,
+                showLevel: !!debug,
+              }),
+            },
+          ],
     });
 
     if (debug || debugJSON) {
@@ -287,16 +286,12 @@ export abstract class BaseCommand extends Command {
         new V3PoolProvider(chainId, multicall2Provider),
         new NodeJSCache(new NodeCache({ stdTTL: 360, useClones: false }))
       );
-      const tokenFeeFetcher = new OnChainTokenFeeFetcher(
-        chainId,
-        provider
-      )
+      const tokenFeeFetcher = new OnChainTokenFeeFetcher(chainId, provider);
       const tokenPropertiesProvider = new TokenPropertiesProvider(
         chainId,
         new NodeJSCache(new NodeCache({ stdTTL: 360, useClones: false })),
         tokenFeeFetcher
-      )
-      const v2PoolProvider = new V2PoolProvider(chainId, multicall2Provider, tokenPropertiesProvider);
+      );
 
       const portionProvider = new PortionProvider();
       const tenderlySimulator = new TenderlySimulator(
@@ -305,17 +300,15 @@ export abstract class BaseCommand extends Command {
         process.env.TENDERLY_USER!,
         process.env.TENDERLY_PROJECT!,
         process.env.TENDERLY_ACCESS_KEY!,
-        v2PoolProvider,
         v3PoolProvider,
         provider,
         portionProvider,
-        { [ChainId.ARBITRUM_ONE]: 1 }
+        { [ChainId.MODE]: 1 }
       );
 
       const ethEstimateGasSimulator = new EthEstimateGasSimulator(
         chainId,
         provider,
-        v2PoolProvider,
         v3PoolProvider,
         portionProvider
       );
